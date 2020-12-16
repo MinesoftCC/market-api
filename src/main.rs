@@ -1,6 +1,7 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
 mod data;
+mod routes;
 
 #[macro_use]
 extern crate rocket;
@@ -50,5 +51,7 @@ fn main() {
         return;
     };
 
-    rocket::ignite().mount("/", routes![]).launch();
+    rocket::ignite()
+        .mount("/", routes![routes::products::all_products])
+        .launch();
 }

@@ -5,6 +5,12 @@ pub struct MarketData {
     pub items: Vec<Item>,
 }
 
+impl MarketData {
+    pub fn update(&mut self) {
+        *self = serde_json::from_str(&String::from_utf8(fs::read("data/data.json").unwrap()).unwrap()).unwrap();
+    }
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct Item {
     pub item_id: String,
