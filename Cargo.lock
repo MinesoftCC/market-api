@@ -498,6 +498,7 @@ dependencies = [
  "chrono",
  "dotenv",
  "lazy_static",
+ "rand",
  "rocket",
  "rocket_contrib",
  "serde",

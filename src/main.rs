@@ -35,6 +35,14 @@ struct ErrorResponse {
     message: String,
 }
 
+#[catch(400)]
+fn bad_request(req: &Request) -> Json<ErrorResponse> {
+    Json(ErrorResponse {
+        code: 400,
+        message: format!("Recieved bad request:<br />{:#?}", req).replace("\n", "<br />"),
+    })
+}
+
 #[catch(404)]
 fn not_found(req: &Request) -> Json<ErrorResponse> {
     Json(ErrorResponse {
@@ -50,9 +58,10 @@ fn internal_server_error(req: &Request) -> Json<ErrorResponse> {
         message: format!(
             "Welp, it looks like either the server broke on it's own or you somehow managed to break the server by \
              yourself. You'll be hearing from our lawyers.<br /><br />Just kidding, we can't afford lawyers.<br />The \
-             following caused an internal server error: '{:?}'.",
+             following caused an internal server error: '{:#?}'.",
             req
-        ),
+        )
+        .replace("\n", "<br />"),
     })
 }
 
@@ -104,7 +113,21 @@ fn main() {
     };
 
     rocket::ignite()
-        .mount("/", routes![routes::products::all_products])
-        .register(catchers![not_found, internal_server_error])
+        .mount(
+            "/",
+            routes![
+                // products
+                routes::products::all_products,
+                routes::products::get_products_by_name,
+                routes::products::get_products_by_id,
+                routes::products::get_products_under_price,
+                routes::products::get_products_above_price,
+                routes::products::get_products_at_price,
+                routes::products::add_item,
+                routes::products::remove_item,
+                // purchase
+            ],
+        )
+        .register(catchers![bad_request, not_found, internal_server_error])
         .launch();
 }
