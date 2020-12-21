@@ -8,6 +8,7 @@ edition = "2018"
 
 [dependencies]
 chrono = { version = "0.4", features = ["serde", "default"] }
+dashmap = { version = "3.11", features = ["serde"] }
 dotenv = "0.15"
 lazy_static = "1.4"
 rand = "0.7"
