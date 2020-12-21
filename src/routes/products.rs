@@ -1,6 +1,8 @@
 use crate::{Item, MarketData, MARKET_DATA};
 use rocket_contrib::json::Json;
 
+type Ret = Vec<(String, Item)>;
+
 #[get("/get")]
 pub fn all_products() -> Json<MarketData> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
@@ -9,48 +11,49 @@ pub fn all_products() -> Json<MarketData> {
 }
 
 #[get("/get/by_name/<item_name>")]
-pub fn get_products_by_name(item_name: String) -> Json<Vec<Item>> {
+pub fn get_products_by_name(item_name: String) -> Json<Ret> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
     md.update();
 
     Json(
         md.items
             .into_iter()
-            .filter(|item| item.display_name == item_name)
+            .filter(|item| item.1.display_name == item_name)
+            .map(|item| item)
             .collect(),
     )
 }
 
 #[get("/get/by_id/<item_id>")]
-pub fn get_products_by_id(item_id: String) -> Json<Vec<Item>> {
+pub fn get_products_by_id(item_id: String) -> Json<Ret> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
     md.update();
 
-    Json(md.items.into_iter().filter(|item| item.item_id == item_id).collect())
+    Json(md.items.into_iter().filter(|item| item.1.item_id == item_id).collect())
 }
 
 #[get("/get/below_price/<price>")]
-pub fn get_products_under_price(price: u32) -> Json<Vec<Item>> {
+pub fn get_products_under_price(price: u32) -> Json<Ret> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
     md.update();
 
-    Json(md.items.into_iter().filter(|item| item.price <= price).collect())
+    Json(md.items.into_iter().filter(|item| item.1.price <= price).collect())
 }
 
 #[get("/get/above_price/<price>")]
-pub fn get_products_above_price(price: u32) -> Json<Vec<Item>> {
+pub fn get_products_above_price(price: u32) -> Json<Ret> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
     md.update();
 
-    Json(md.items.into_iter().filter(|item| item.price >= price).collect())
+    Json(md.items.into_iter().filter(|item| item.1.price >= price).collect())
 }
 
 #[get("/get/at_price/<price>")]
-pub fn get_products_at_price(price: u32) -> Json<Vec<Item>> {
+pub fn get_products_at_price(price: u32) -> Json<Ret> {
     let mut md = MARKET_DATA.lock().unwrap().clone();
     md.update();
 
-    Json(md.items.into_iter().filter(|item| item.price == price).collect())
+    Json(md.items.into_iter().filter(|item| item.1.price == price).collect())
 }
 
 #[post("/add_item", format = "application/json", data = "<item>")]

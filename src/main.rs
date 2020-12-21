@@ -11,6 +11,7 @@ extern crate lazy_static;
 extern crate serde;
 
 use crate::data::*;
+use dashmap::DashMap;
 use dotenv::dotenv;
 use rocket::Request;
 use rocket_contrib::json::Json;
@@ -25,7 +26,11 @@ type StrRet = Cow<'static, str>;
 
 lazy_static! {
     static ref MARKET_DATA: Mutex<MarketData> = Mutex::from(MarketData {
-        items: vec![Item::default()]
+        items: {
+            let dm = DashMap::new();
+            dm.insert(Item::gen_market_id(), Item::default());
+            dm
+        }
     });
 }
 
