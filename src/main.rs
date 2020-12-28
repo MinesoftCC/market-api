@@ -1,5 +1,6 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+mod bank;
 mod data;
 mod routes;
 
@@ -28,7 +29,8 @@ lazy_static! {
     static ref MARKET_DATA: Mutex<MarketData> = Mutex::from(MarketData {
         items: {
             let dm = DashMap::new();
-            dm.insert(Item::gen_market_id(), Item::default());
+            let item = Item::default();
+            dm.insert(Item::gen_market_id(&item), item);
             dm
         }
     });
@@ -93,6 +95,7 @@ fn check_file() -> Result<(), StrRet> {
     }
 
     file.read_to_end(&mut buffer).unwrap();
+
     *market_data = match serde_json::from_str(&data) {
         Ok(md) => md,
         Err(_) => {
@@ -111,6 +114,16 @@ fn check_file() -> Result<(), StrRet> {
 
 fn main() {
     dotenv().ok();
+
+    // handle Ctrl+C gracefully by saving data before closing.
+    ctrlc::set_handler(|| {
+        println!("\n--| Stopping server |--");
+        print!("Saving market data...");
+        MARKET_DATA.lock().unwrap().write();
+        println!("Done!");
+        std::process::exit(0);
+    })
+    .unwrap();
 
     if let Err(e) = check_file() {
         eprintln!("An error occured: {}", e);
@@ -131,6 +144,7 @@ fn main() {
                 routes::products::add_item,
                 routes::products::remove_item,
                 // purchase
+                routes::transactions::purchase,
             ],
         )
         .register(catchers![bad_request, not_found, internal_server_error])
