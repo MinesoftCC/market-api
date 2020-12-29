@@ -6,7 +6,7 @@ type Ret = Vec<(String, Item)>;
 
 #[get("/get")]
 pub fn all_products() -> Json<DashMap<String, Item>> {
-    let items = MARKET_DATA.try_lock().unwrap().items.clone();
+    let items = MARKET_DATA.lock().unwrap().items.clone();
     Json(items)
 }
 
@@ -19,7 +19,6 @@ pub fn get_products_by_name(item_name: String) -> Json<Ret> {
             .clone()
             .into_iter()
             .filter(|item| item.1.display_name == item_name)
-            .map(|item| item)
             .collect(),
     )
 }

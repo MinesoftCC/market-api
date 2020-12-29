@@ -1,4 +1,4 @@
-use crate::MARKET_DATA;
+use crate::{bank::data::*, MARKET_DATA};
 use rocket_contrib::json::Json;
 
 #[derive(Deserialize, Serialize)]
@@ -7,11 +7,20 @@ pub enum PurchaseResult {
     Fail(String),
 }
 
-#[get("/buy?<market_id>&<_user_id>&<quantity>")]
-pub fn purchase(market_id: String, _user_id: String, quantity: u32) -> Json<PurchaseResult> {
+#[get("/buy/<market_id>/<user_id>/<quantity>")]
+pub fn purchase(market_id: String, user_id: usize, quantity: u32) -> Json<PurchaseResult> {
     let md = MARKET_DATA.lock().unwrap();
 
     // get info about user
+    let bank = Bank::connect();
+    let _user = match bank.users.get(user_id) {
+        Some(u) => u,
+        None =>
+            return Json(PurchaseResult::Fail(format!(
+                "Could not find user with ID '{}'",
+                user_id
+            ))),
+    };
 
     // ----
 

@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![allow(clippy::unit_arg)]
 
 mod bank;
 mod data;
@@ -91,7 +92,7 @@ fn check_file() -> Result<(), StrRet> {
     if data.is_empty() {
         data = serde_json::to_string_pretty(&*market_data).unwrap();
         buffer = data.as_bytes().to_vec();
-        file.write_all(&mut buffer).unwrap();
+        file.write_all(&buffer).unwrap();
     }
 
     file.read_to_end(&mut buffer).unwrap();
