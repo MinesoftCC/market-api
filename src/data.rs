@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::prelude::*;
 use dashmap::DashMap;
 use rocket::{
     data::{FromDataSimple, Outcome},
@@ -56,7 +56,7 @@ impl Default for Item {
             quantity: 0,
             price: 0,
             poster_id: 1,
-            time_posted: Utc::now().to_string(),
+            time_posted: Utc::now().to_rfc2822(),
         }
     }
 }
