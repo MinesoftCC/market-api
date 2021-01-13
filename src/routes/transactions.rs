@@ -50,11 +50,18 @@ pub fn purchase(
     };
 
     if quantity == 0 {
-        return Json(PurchaseResult::Fail("Cannot purchase 0 of an item".into()));
+        return Json(PurchaseResult::Fail(
+            "Cannot purchase 0 of an item".into(),
+        ));
     } else if item.quantity == 0 {
-        return Json(PurchaseResult::Fail(format!("Item '{}' out of stock", item.item_id)));
+        return Json(PurchaseResult::Fail(format!(
+            "Item '{}' out of stock",
+            item.item_id
+        )));
     } else if quantity > item.quantity {
-        return Json(PurchaseResult::Fail("Cannot purchase over amount of stock".into()));
+        return Json(PurchaseResult::Fail(
+            "Cannot purchase over amount of stock".into(),
+        ));
     }
 
     let account = match customer.accounts.clone() {
@@ -89,11 +96,17 @@ pub fn purchase(
         (quantity * item.price) as i32,
         password,
     ) {
-        return Json(PurchaseResult::Fail(format!("Could not send funds: {}", e)));
+        return Json(PurchaseResult::Fail(format!(
+            "Could not send funds: {}",
+            e
+        )));
     };
 
     if let Err(e) = bank.update_user(user_id, customer.clone()) {
-        return Json(PurchaseResult::Fail(format!("Could not update local user: {}", e)));
+        return Json(PurchaseResult::Fail(format!(
+            "Could not update local user: {}",
+            e
+        )));
     }
 
     // ----

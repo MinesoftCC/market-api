@@ -15,7 +15,8 @@ pub struct Bank {
 
 impl Bank {
     pub fn connect() -> Self {
-        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api =
+            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
 
         let client = Client::new();
         let response: Vec<String> = serde_json::from_str(
@@ -40,20 +41,38 @@ impl Bank {
             })
         });
 
-        users.iter_mut().enumerate().into_iter().for_each(|(id, user)| {
-            user.populate(id);
-        });
+        users
+            .iter_mut()
+            .enumerate()
+            .into_iter()
+            .for_each(|(id, user)| {
+                user.populate(id);
+            });
 
         Self { users }
     }
 
-    pub fn get_user_mut(&mut self, user_id: usize) -> Option<&mut User> { self.users.get_mut(user_id) }
-    pub fn get_user(&mut self, user_id: usize) -> User { self.users.get(user_id).unwrap().clone() }
+    pub fn get_user_mut(&mut self, user_id: usize) -> Option<&mut User> {
+        self.users.get_mut(user_id)
+    }
 
-    pub fn update_user(&mut self, user_id: usize, user_updated: User) -> Result<(), Cow<'static, str>> {
+    pub fn get_user(&mut self, user_id: usize) -> User {
+        self.users.get(user_id).unwrap().clone()
+    }
+
+    pub fn update_user(
+        &mut self,
+        user_id: usize,
+        user_updated: User,
+    ) -> Result<(), Cow<'static, str>> {
         let user = match self.users.get_mut(user_id) {
             Some(u) => u,
-            None => return Err(format!("Could not find user with ID '{}'", user_id).into()),
+            None =>
+                return Err(format!(
+                    "Could not find user with ID '{}'",
+                    user_id
+                )
+                .into()),
         };
 
         *user = user_updated;
@@ -74,7 +93,12 @@ impl Bank {
 
         let from_accounts = match from_user.clone().accounts {
             Some(accts) => accts,
-            None => return Err(format!("Could not find any accounts for user '{}'", from_user.name).into()),
+            None =>
+                return Err(format!(
+                    "Could not find any accounts for user '{}'",
+                    from_user.name
+                )
+                .into()),
         };
 
         let from_account = match from_accounts.get_mut(&from_account) {
@@ -91,28 +115,46 @@ impl Bank {
 
         let to_accounts = match to_user.clone().accounts {
             Some(accts) => accts,
-            None => return Err(format!("Could not find any accounts for user '{}'", to_user.name).into()),
+            None =>
+                return Err(format!(
+                    "Could not find any accounts for user '{}'",
+                    to_user.name
+                )
+                .into()),
         };
 
         let to_account = match to_accounts.get_mut(&to_account) {
             Some(acct) => acct.key().clone(),
-            None => return Err(format!("Could not find account '{}' for user '{}'", to_account, to_user.name).into()),
+            None =>
+                return Err(format!(
+                    "Could not find account '{}' for user '{}'",
+                    to_account, to_user.name
+                )
+                .into()),
         };
 
-        from_user.remove_balance(from_account.clone(), amount).unwrap();
+        from_user
+            .remove_balance(from_account.clone(), amount)
+            .unwrap();
         to_user.add_balance(to_account.clone(), amount).unwrap();
 
         self.update_user(from_id, from_user).unwrap();
         self.update_user(to_id, to_user).unwrap();
 
-        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api =
+            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
         let client = Client::new();
         let response: FundResponse = serde_json::from_str(
             client
                 .post(
                     format!(
                         "{}/sendfunds/{}/{}/{}/{}/{}",
-                        bank_api, from_account, to_account, amount, from_id, from_pass
+                        bank_api,
+                        from_account,
+                        to_account,
+                        amount,
+                        from_id,
+                        from_pass
                     )
                     .as_str(),
                 )
@@ -148,11 +190,14 @@ pub struct User {
 
 impl User {
     pub fn populate(&mut self, id: usize) {
-        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api =
+            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
 
         let client = Client::new();
         let User {
-            balance, perm_count, ..
+            balance,
+            perm_count,
+            ..
         } = serde_json::from_str(
             client
                 .get(format!("{}/total/{}", bank_api, id).as_str())
@@ -180,15 +225,25 @@ impl User {
         self.accounts = accounts;
     }
 
-    fn remove_balance(&mut self, account_name: String, amount: i32) -> Result<(), Cow<'static, str>> {
+    fn remove_balance(
+        &mut self,
+        account_name: String,
+        amount: i32,
+    ) -> Result<(), Cow<'static, str>> {
         let accounts = match self.accounts.as_mut() {
             Some(accts) => accts,
-            None => return Err("User doesn't have any assigned accounts".into()),
+            None =>
+                return Err("User doesn't have any assigned accounts".into()),
         };
 
         let mut account = match accounts.get_mut(&account_name) {
             Some(acct) => acct,
-            None => return Err(format!("User doesn't have an account with the name '{}'", account_name).into()),
+            None =>
+                return Err(format!(
+                    "User doesn't have an account with the name '{}'",
+                    account_name
+                )
+                .into()),
         };
 
         account.balance -= amount;
@@ -196,15 +251,25 @@ impl User {
         Ok(())
     }
 
-    fn add_balance(&mut self, account_name: String, amount: i32) -> Result<(), Cow<'static, str>> {
+    fn add_balance(
+        &mut self,
+        account_name: String,
+        amount: i32,
+    ) -> Result<(), Cow<'static, str>> {
         let accounts = match self.accounts.as_mut() {
             Some(accts) => accts,
-            None => return Err("User doesn't have any assigned accounts".into()),
+            None =>
+                return Err("User doesn't have any assigned accounts".into()),
         };
 
         let mut account = match accounts.get_mut(&account_name) {
             Some(acct) => acct,
-            None => return Err(format!("User doesn't have an account with the name '{}'", account_name).into()),
+            None =>
+                return Err(format!(
+                    "User doesn't have an account with the name '{}'",
+                    account_name
+                )
+                .into()),
         };
 
         account.balance += amount;
@@ -218,7 +283,8 @@ impl User {
             None => return Err("User doesn't have any accounts".into()),
         };
 
-        let accounts: Vec<String> = accounts.into_iter().map(|item| item.0).collect();
+        let accounts: Vec<String> =
+            accounts.into_iter().map(|item| item.0).collect();
 
         Ok(accounts[0].clone())
     }
