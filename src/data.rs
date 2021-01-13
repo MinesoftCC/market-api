@@ -6,8 +6,7 @@ use rocket::{
     Data, Request,
 };
 use std::{
-    collections::hash_map::DefaultHasher, default::Default, fs, hash::*,
-    io::Read,
+    collections::hash_map::DefaultHasher, default::Default, fs, hash::*, io::Read,
 };
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -89,11 +88,7 @@ impl FromDataSimple for Item {
 
         let item: Item = match serde_json::from_str(&string.as_str()) {
             Ok(i) => i,
-            Err(e) =>
-                return Outcome::Failure((
-                    Status::BadRequest,
-                    format!("{:?}", e),
-                )),
+            Err(e) => return Outcome::Failure((Status::BadRequest, format!("{:?}", e))),
         };
 
         Outcome::Success(item)

@@ -15,8 +15,7 @@ pub struct Bank {
 
 impl Bank {
     pub fn connect() -> Self {
-        let bank_api =
-            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
 
         let client = Client::new();
         let response: Vec<String> = serde_json::from_str(
@@ -68,11 +67,7 @@ impl Bank {
         let user = match self.users.get_mut(user_id) {
             Some(u) => u,
             None =>
-                return Err(format!(
-                    "Could not find user with ID '{}'",
-                    user_id
-                )
-                .into()),
+                return Err(format!("Could not find user with ID '{}'", user_id).into()),
         };
 
         *user = user_updated;
@@ -141,20 +136,14 @@ impl Bank {
         self.update_user(from_id, from_user).unwrap();
         self.update_user(to_id, to_user).unwrap();
 
-        let bank_api =
-            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
         let client = Client::new();
         let response: FundResponse = serde_json::from_str(
             client
                 .post(
                     format!(
                         "{}/sendfunds/{}/{}/{}/{}/{}",
-                        bank_api,
-                        from_account,
-                        to_account,
-                        amount,
-                        from_id,
-                        from_pass
+                        bank_api, from_account, to_account, amount, from_id, from_pass
                     )
                     .as_str(),
                 )
@@ -190,8 +179,7 @@ pub struct User {
 
 impl User {
     pub fn populate(&mut self, id: usize) {
-        let bank_api =
-            format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
+        let bank_api = format!("http://{}:80/BankApi", env::var("BANK_IP").unwrap());
 
         let client = Client::new();
         let User {
@@ -232,8 +220,7 @@ impl User {
     ) -> Result<(), Cow<'static, str>> {
         let accounts = match self.accounts.as_mut() {
             Some(accts) => accts,
-            None =>
-                return Err("User doesn't have any assigned accounts".into()),
+            None => return Err("User doesn't have any assigned accounts".into()),
         };
 
         let mut account = match accounts.get_mut(&account_name) {
@@ -258,8 +245,7 @@ impl User {
     ) -> Result<(), Cow<'static, str>> {
         let accounts = match self.accounts.as_mut() {
             Some(accts) => accts,
-            None =>
-                return Err("User doesn't have any assigned accounts".into()),
+            None => return Err("User doesn't have any assigned accounts".into()),
         };
 
         let mut account = match accounts.get_mut(&account_name) {
@@ -283,8 +269,7 @@ impl User {
             None => return Err("User doesn't have any accounts".into()),
         };
 
-        let accounts: Vec<String> =
-            accounts.into_iter().map(|item| item.0).collect();
+        let accounts: Vec<String> = accounts.into_iter().map(|item| item.0).collect();
 
         Ok(accounts[0].clone())
     }

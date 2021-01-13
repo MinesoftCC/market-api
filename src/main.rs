@@ -47,8 +47,7 @@ struct ErrorResponse {
 fn bad_request(req: &Request) -> Json<ErrorResponse> {
     Json(ErrorResponse {
         code: 400,
-        message: format!("Recieved bad request:<br />{:#?}", req)
-            .replace("\n", "<br />"),
+        message: format!("Recieved bad request:<br />{:#?}", req).replace("\n", "<br />"),
     })
 }
 
@@ -65,11 +64,10 @@ fn internal_server_error(req: &Request) -> Json<ErrorResponse> {
     Json(ErrorResponse {
         code: 500,
         message: format!(
-            "Welp, it looks like either the server broke on it's own or you \
-             somehow managed to break the server by yourself. You'll be \
-             hearing from our lawyers.<br /><br />Just kidding, we can't \
-             afford lawyers.<br />The following caused an internal server \
-             error: '{:#?}'.",
+            "Welp, it looks like either the server broke on it's own or you somehow \
+             managed to break the server by yourself. You'll be hearing from our \
+             lawyers.<br /><br />Just kidding, we can't afford lawyers.<br />The \
+             following caused an internal server error: '{:#?}'.",
             req
         )
         .replace("\n", "<br />"),
@@ -84,8 +82,7 @@ fn check_file() -> Result<(), StrRet> {
         .open("data/data.json")
     {
         Ok(f) => f,
-        Err(e) =>
-            return Err(format!("Could not find/create data.json: {}", e).into()),
+        Err(e) => return Err(format!("Could not find/create data.json: {}", e).into()),
     };
 
     let mut buffer = vec![];
