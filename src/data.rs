@@ -9,6 +9,15 @@ use std::{
     collections::hash_map::DefaultHasher, default::Default, fs, hash::*, io::Read,
 };
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash)]
+pub enum ItemRatio {
+    Individual,
+    Pair,
+    HalfStack,
+    Stack,
+    Custom(u32),
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct MarketData {
     pub items: DashMap<String, Item>,
@@ -36,7 +45,7 @@ impl MarketData {
     }
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, FromForm, PartialEq, Hash)]
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Hash)]
 pub struct Item {
     pub item_id: String,
     pub item_image_url: String,
@@ -45,6 +54,7 @@ pub struct Item {
     pub price: u32,
     pub poster_id: u16,
     pub time_posted: String,
+    pub item_ratio: ItemRatio,
 }
 
 impl Item {
@@ -64,8 +74,9 @@ impl Default for Item {
             display_name: "null".into(),
             quantity: 0,
             price: 0,
-            poster_id: 1,
+            poster_id: 0,
             time_posted: Utc::now().to_rfc2822(),
+            item_ratio: ItemRatio::Individual,
         }
     }
 }

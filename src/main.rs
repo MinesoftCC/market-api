@@ -28,12 +28,7 @@ type StrRet = Cow<'static, str>;
 
 lazy_static! {
     static ref MARKET_DATA: Mutex<MarketData> = Mutex::from(MarketData {
-        items: {
-            let dm = DashMap::new();
-            let item = Item::default();
-            dm.insert(Item::gen_market_id(&item), item);
-            dm
-        }
+        items: DashMap::new()
     });
 }
 
