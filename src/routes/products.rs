@@ -81,8 +81,14 @@ pub fn add_item(item: Item) {
     md.add_item(item);
 }
 
-#[post("/remove_item", format = "application/json", data = "<item>")]
-pub fn remove_item(item: Item) {
+#[post("/edit_item/<id>", format = "application/json", data = "<item>")]
+pub fn edit_item(id: String, item: Item) {
     let mut md = MARKET_DATA.lock().unwrap();
-    md.remove_item(item);
+    md.edit_item(id, item);
+}
+
+#[post("/remove_item", format = "application/json", data = "<uid>")]
+pub fn remove_item(uid: Json<String>) {
+    let mut md = MARKET_DATA.lock().unwrap();
+    md.remove_item(uid.to_string());
 }

@@ -139,6 +139,7 @@ fn main() {
                 routes::products::get_products_above_price,
                 routes::products::get_products_at_price,
                 routes::products::add_item,
+                routes::products::edit_item,
                 routes::products::remove_item,
                 // purchase
                 routes::transactions::purchase,

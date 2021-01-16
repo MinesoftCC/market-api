@@ -33,15 +33,22 @@ impl MarketData {
         self.items.insert(Item::gen_market_id(&item), item);
     }
 
-    pub fn remove_item(&mut self, item: Item) {
-        self.items = self
-            .items
-            .clone()
-            .into_iter()
-            .filter(|x| x.1 != item)
-            .collect();
-        println!("Item req: {:#?}", item);
-        println!("Items\n{:#?}", self.items);
+    pub fn remove_item(&mut self, uid: String) {
+        if self.items.contains_key(&uid) {
+            self.items.remove(&uid).unwrap();
+        } else {
+            #[cfg(debug_assertions)]
+            println!("Ignoring deletion of {}; doesn't exist", uid);
+        }
+    }
+
+    pub fn edit_item(&mut self, uid: String, item: Item) {
+        if self.items.contains_key(&uid) {
+            *self.items.get_mut(&uid).unwrap() = item;
+        } else {
+            #[cfg(debug_assertions)]
+            println!("Ignoring deletion of {}; doesn't exist", uid);
+        }
     }
 }
 
