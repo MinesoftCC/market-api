@@ -31,11 +31,13 @@ impl MarketData {
 
     pub fn add_item(&mut self, item: Item) {
         self.items.insert(Item::gen_market_id(&item), item);
+        self.write();
     }
 
     pub fn remove_item(&mut self, uid: String) {
         if self.items.contains_key(&uid) {
             self.items.remove(&uid).unwrap();
+            self.write();
         } else {
             #[cfg(debug_assertions)]
             println!("Ignoring deletion of {}; doesn't exist", uid);
@@ -45,6 +47,7 @@ impl MarketData {
     pub fn edit_item(&mut self, uid: String, item: Item) {
         if self.items.contains_key(&uid) {
             *self.items.get_mut(&uid).unwrap() = item;
+            self.write();
         } else {
             #[cfg(debug_assertions)]
             println!("Ignoring deletion of {}; doesn't exist", uid);
