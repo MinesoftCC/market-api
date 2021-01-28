@@ -19,8 +19,9 @@ use rocket::Request;
 use rocket_contrib::json::Json;
 use std::{
     borrow::Cow,
-    fs::{self, OpenOptions},
+    fs::{self, create_dir, OpenOptions},
     io::prelude::*,
+    path::Path,
     sync::Mutex,
 };
 
@@ -70,6 +71,14 @@ fn internal_server_error(req: &Request) -> Json<ErrorResponse> {
 }
 
 fn check_file() -> Result<(), StrRet> {
+    if !Path::new("data").exists() {
+        println!("Creating data directory");
+
+        if let Err(e) = create_dir("data") {
+            return Err(format!("Could not create data directory: {}", e).into());
+        }
+    }
+
     let mut file = match OpenOptions::new()
         .write(true)
         .read(true)
@@ -80,7 +89,7 @@ fn check_file() -> Result<(), StrRet> {
         Err(e) => return Err(format!("Could not find/create data.json: {}", e).into()),
     };
 
-    let mut buffer = vec![];
+    let mut buffer = Vec::new();
     file.read_to_end(&mut buffer).unwrap();
     let mut data = String::from_utf8(buffer.to_vec()).unwrap();
     let mut market_data = MARKET_DATA.lock().unwrap();
@@ -131,6 +140,8 @@ fn main() {
         .mount(
             "/",
             routes![
+                // instance
+                routes::instance::get_bank_ip,
                 // products
                 routes::products::all_products,
                 routes::products::get_products_by_name,
